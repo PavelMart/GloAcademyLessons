@@ -1,8 +1,29 @@
 'use strict';
 
+const buttonStart = document.getElementById('start');
+const salaryAmount = document.querySelector('.salary-amount');
+const incomeTitle = document.querySelector('.income-title');
+const incomeAmount = document.querySelector('.income-amount');
+const expensesTitle = document.querySelector('.expenses-title');
+const expensesAmount = document.querySelector('.expenses-amount');
+const additionalExpensesItem = document.querySelector('.additional_expenses-item');
+const targetAmount = document.querySelector('.target-amount');
+const periodSelect = document.querySelector('.period-select');
+const buttonIncomeAdd = document.getElementsByTagName('button')[0];
+const buttonExpensesAdd = document.getElementsByTagName('button')[1];
+const checkDeposit = document.querySelector('#deposit-check');
+const additionalIncomeItems = document.querySelectorAll('.additional_income-item');
+const budgetDayValue = document.getElementsByClassName('result-total')[1];
+const expensesMonthValue = document.getElementsByClassName('result-total')[2];
+const additionalIncomeValue = document.getElementsByClassName('result-total')[3];
+const additionalExpensesValue = document.getElementsByClassName('result-total')[4];
+const incomePeriodValue = document.getElementsByClassName('result-total')[5];
+const targetMonthValue = document.getElementsByClassName('result-total')[6];
+
 let isNumber = function (num){
     return !isNaN(parseFloat(num)) && isFinite(num);
 };
+
 let isString = function(str, query) {
     while (!isNaN(str || str.trim() === '' || str === null) ) {
         str = prompt('Данное значение не яляется допустимым! Введите другое значение! \n' + query);
@@ -39,25 +60,34 @@ let appData = {
         if (confirm('Есть ли у Вас дополнительный источник заработка?')) {
             let question = 'Какой у Вас дополнительный источник заработка?';
             let itemIncome = prompt(question, 'Фриланс');
+
             itemIncome = isString(itemIncome, question);
+
             let cashIncome = prompt('Сколько Вы на этом зарабатываете?', '10000');
+
             while (!isNumber(cashIncome) || cashIncome < 0) {
                 cashIncome = prompt('Сколько Вы на этом зарабатываете?', '10000');
             }
+
             appData.income[itemIncome] = +cashIncome;
         }
 
         let addExpenses = prompt('Перечислите возможные расходы за рассчитываемый период через запятую', 'eda, voda');
+
         appData.addExpenses = addExpenses.toLowerCase().split(', ');
 
         for (let i = 0; i < 2; i++) {
             let question = 'Введите обязательную статью расходов';
             let expenseName = prompt(question);
+
             expenseName = isString(expenseName, question);
+
             let expenseValue = prompt('Во сколько эта статья обойдется?');
+
             while (!isNumber(expenseValue) || expenseValue < 0) {
                 expenseValue = prompt('Во сколько эта статья обойдется?');
             }
+
             appData.expenses[expenseName] = +expenseValue;
         }
 
@@ -65,14 +95,17 @@ let appData = {
     },
     getExpensesMonth: function() {
         let sum = 0;
+
         for (const item in appData.expenses) {
             sum += appData.expenses[item];
         }
+
         appData.expensesMonth = sum;
     },
     getBudget: function() {
         let budgetMonth = appData.budget - appData.expensesMonth;
         let budgetDay = Math.floor(budgetMonth / 30);
+
         appData.budgetMonth = budgetMonth;
         appData.budgetDay = budgetDay;
     },
@@ -98,10 +131,13 @@ let appData = {
     getInfoDeposit: function() {
         if (appData.deposit) {
             appData.percentDeposit = prompt('Какая ставка в процентах у Вашего депозита?', '10');
+
             while (!isNumber(appData.percentDeposit) || appData.percentDeposit < 0) {
                 appData.percentDeposit = prompt('Какая ставка в процентах у Вашего депозита?', '10');
             }
+
             appData.moneyDeposit = prompt('Сколько денег у Вас на депозите?', '5000');
+
             while (!isNumber(appData.moneyDeposit) || appData.moneyDeposit < 0) {
                 appData.moneyDeposit = prompt('Сколько денег у Вас на депозите?', '5000');
             }
@@ -128,6 +164,7 @@ appData.getStatusIncome();
 
 for (let item in appData.addExpenses) {
     let newString = '';
+
     for (let i = 0; i < appData.addExpenses[item].length; i++) {
         if (i === 0) {
             newString += appData.addExpenses[item][i].toUpperCase();
@@ -135,6 +172,7 @@ for (let item in appData.addExpenses) {
             newString += appData.addExpenses[item][i];
         }
     }
+
     appData.addExpenses[item] = newString;
 }
 
