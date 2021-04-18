@@ -204,6 +204,7 @@ AppData.prototype.addExpensesBlock = function() {
     }
 };
 AppData.prototype.removeIncomeBlock = function() {
+    incomeItems = document.querySelectorAll('.income-items');
 
     if (incomeItems.length < 2) {
         return;
@@ -219,6 +220,7 @@ AppData.prototype.removeIncomeBlock = function() {
 
 };
 AppData.prototype.removeExpensesBlock = function() {
+    expensesItems = document.querySelectorAll('.expenses-items');
 
     if (expensesItems.length > 1) {
 
@@ -477,14 +479,8 @@ AppData.prototype.eventListeners = function() {
     
     this.changeDisabled( buttonStart );
     buttonStart.addEventListener('click', _this.start.bind( _this ));
-    buttonStart.addEventListener('click', _this.openConsole.bind( _this ));
     buttonCancel.addEventListener('click', _this.reset.bind ( _this ));
 
-};
-
-AppData.prototype.openConsole = function() {
-    console.log(this);
-    console.dir(this);
 };
 
 
