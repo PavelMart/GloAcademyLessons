@@ -19,6 +19,7 @@ const additionalIncomeItems = document.querySelectorAll('.additional_income-item
 
 const buttonIncomeAdd = document.getElementsByTagName('button')[0];
 const buttonExpensesAdd = document.getElementsByTagName('button')[1];
+const buttonsAdd = document.querySelectorAll('.btn_plus');
 
 const budgetDayValue = document.getElementsByClassName('result-total')[1];
 const expensesMonthValue = document.getElementsByClassName('result-total')[2];
@@ -104,11 +105,9 @@ class AppData {
     
         this.getMoneyBudget();  
     
-        this.getIncome();      
-        this.getExpenses();
-    
-        this.getAddIncome();
-        this.getAddExpenses();
+        this.getIncExp();
+
+        this.getAddIncExp();
     
         this.getDepositChecked();
         this.getExpensesMonth();
@@ -148,9 +147,8 @@ class AppData {
         this.getBudget();
     
         this.clearTargetMonthValue();
-    
-        this.removeIncomeBlock();
-        this.removeExpensesBlock();
+
+        this.removeIncExpBlock();
     
         this.showResults();
     
@@ -160,11 +158,14 @@ class AppData {
 
     }
 
-    addIncomeBlock() {
+    addIncExpBlock( e ) {
         
-        const cloneIncomeItem = incomeItems[0].cloneNode(true);
+        const target = e.target;
+        const parentNode = target.parentNode;
+        const str = parentNode.className;
+        const cloneItem = document.getElementsByClassName( `${str}-items` )[0].cloneNode(true);
         
-        cloneIncomeItem.childNodes.forEach( ( item, i ) => {
+        cloneItem.childNodes.forEach( ( item, i ) => {
             if ( item.tagName ) {
                 item.value = '';
     
@@ -176,77 +177,43 @@ class AppData {
             }
         } );
     
-        income.insertBefore( cloneIncomeItem, buttonIncomeAdd );
-    
+        parentNode.insertBefore( cloneItem, target );
         
         incomeItems = document.querySelectorAll('.income-items');
-        
-        if (incomeItems.length === 3) {
-            buttonIncomeAdd.style.display = 'none';
-        }
-    }
-
-    addExpensesBlock() {
-        
-        const cloneExpensesItem = expensesItems[0].cloneNode( true );
-    
-        cloneExpensesItem.childNodes.forEach( ( item, i ) => {
-            if ( item.tagName ) {
-                item.value = '';
-    
-                if ( i === 1) {
-                    this.addEventName( item );
-                } else {
-                    this.addEventNum( item );
-                }
-            }
-        } );
-    
-        expenses.insertBefore(cloneExpensesItem, buttonExpensesAdd);
-    
-        
         expensesItems = document.querySelectorAll('.expenses-items');
         
-        if (expensesItems.length === 3) {
-            buttonExpensesAdd.style.display = 'none';
+        if ( str === 'income' && incomeItems.length === 3 ) {
+            target.style.display = 'none';
+        } else if (  str === 'expenses' && expensesItems.length === 3 ) { 
+            target.style.display = 'none';
         }
 
     }
 
-    removeIncomeBlock() {
+    removeIncExpBlock() {
 
-        incomeItems = document.querySelectorAll('.income-items');
-    
-        if (incomeItems.length < 2) {
-            return;
-        } else {
-            for (let i = 1; i < incomeItems.length; i++) {
-                if (incomeItems[i]) {
-                    incomeItems[i].parentNode.removeChild(incomeItems[i]);
+        const itemsIncExp = [incomeItems, expensesItems];
+
+        for ( let item of itemsIncExp ) {
+
+            const str = item[0].parentNode.className;
+            
+            item = document.querySelectorAll( `.${str}-items` );
+
+            if ( item.length > 1 ) {
+            
+                for ( let i = 1; i < item.length; i++ ) {
+                    if  (item[i] ) {
+                        item[i].parentNode.removeChild( item[i] );
+                    }
                 }
-            }
-    
-            buttonIncomeAdd.style.display = 'block';
-        }
-    
-    }
-
-    removeExpensesBlock() {
-
-        expensesItems = document.querySelectorAll('.expenses-items');
-    
-        if (expensesItems.length > 1) {
-    
-            for (let i = 1; i < expensesItems.length; i++) {
-                if (expensesItems[i]) {
-                    expensesItems[i].parentNode.removeChild(expensesItems[i]);
-                }
-            }
-    
-            buttonExpensesAdd.style.display = 'block';
-    
-        }
         
+                buttonsAdd.forEach( item => item.style.display = 'block');
+    
+            }
+
+        }
+    
     }
 
     getMoneyBudget() {
@@ -255,79 +222,59 @@ class AppData {
 
     }
 
-    getIncome() {
+    getIncExp() {
 
-        incomeItems.forEach( ( item ) => {
-            const incomeTitle = item.querySelector('.income-title').value;
-            const incomeAmount = item.querySelector('.income-amount').value;
+        const count = ( item ) => {
+            const str = item.className.split('-')[0];
+
+            const itemTitle = item.querySelector(`.${str}-title`).value;
+            const itemAmount = item.querySelector(`.${str}-amount`).value;
 
             let contains = false;
-    
-            Object.keys( this.income ).forEach( ( item ) => {
-                if ( item === incomeTitle ) {
+
+            Object.keys( this[str] ).forEach( ( item ) => {
+                if ( item === itemTitle ) {
                     contains = true;
                 }
             });
-    
-            if ( incomeTitle !== '' && incomeAmount !== '' && !contains ) {
-                this.income[incomeTitle] = incomeAmount;
+
+            if ( itemTitle !== '' && itemAmount !== '' && !contains ) {
+                this[str][itemTitle] = itemAmount;
             }
-        });
-    
+
+        };
+
+        incomeItems.forEach( count );
+        expensesItems.forEach( count );
+
         for ( let item in this.income ) {
             this.additionalIncome += +this.income[item];
         }
 
     }
 
-    getExpenses() {
+    getAddIncExp() {
 
-        expensesItems.forEach( ( item ) => {
+        const additionalExpensesItems = additionalExpensesItem.value.split(',');
 
-            const expensesTitle = item.querySelector('.expenses-title').value;
-            const expensesAmount = item.querySelector('.expenses-amount').value;
+        const pushArray = ( item, array ) => {
 
-            let contains = false;
-
-            Object.keys( this.expenses ).forEach( ( item ) => {
-                if ( item === expensesTitle ) {
-                    contains = true;
-                }
-            });
+            const itemValue = item.trim();
     
-            if ( expensesTitle !== '' && expensesAmount !== '' && !contains ) {
-                this.expenses[expensesTitle] = expensesAmount;
+            if ( itemValue !== '' ) {
+                this[array].push( itemValue );
             }
 
-        });
-    }
+        };
 
-    getAddIncome() {
+        additionalIncomeItems.forEach( item => {
+            pushArray( item.value, 'addIncome' );
+        } );
 
-        additionalIncomeItems.forEach( ( item ) => {
-            const incomeValue = item.value.trim();
-    
-            if (incomeValue !== '') {
-                this.addIncome.push(incomeValue);
-            }
-    
-        });
-            
-    }
+        additionalExpensesItems.forEach( item => {
+            pushArray( item, 'addExpenses' );
+        } );
 
-    getAddExpenses() {
-
-        const items = additionalExpensesItem.value.split(',');
-    
-        items.forEach( ( item ) => {
-            item = item.trim();
-    
-            if (item !== '') {
-                this.addExpenses.push(item);
-            }
-    
-        });
-            
     }
 
     getDepositChecked() {
@@ -509,22 +456,18 @@ class AppData {
     }
 
     eventListeners() {
-    
-        buttonExpensesAdd.addEventListener('click',  () => {
 
-            placeholderNameElems = document.querySelectorAll('input[placeholder="Наименование"]');
-            placeholderSummElems = document.querySelectorAll('input[placeholder="Сумма"]');
-            this.addExpensesBlock();
+        buttonsAdd.forEach( ( item, i ) => {
+            
+            item.addEventListener( 'click', e => {
 
-        });
+                placeholderNameElems = document.querySelectorAll('input[placeholder="Наименование"]');
+                placeholderSummElems = document.querySelectorAll('input[placeholder="Сумма"]');
+                this.addIncExpBlock( e );
 
-        buttonIncomeAdd.addEventListener('click',  () => {
+            });
 
-            placeholderNameElems = document.querySelectorAll('input[placeholder="Наименование"]');
-            placeholderSummElems = document.querySelectorAll('input[placeholder="Сумма"]');
-            this.addIncomeBlock();
-
-        });
+        } );
         
         periodSelect.addEventListener('input',  () => {
 
