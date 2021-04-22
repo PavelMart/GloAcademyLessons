@@ -13,7 +13,9 @@ const periodSelect = document.querySelector('.period-select');
 const periodAmount = document.querySelector('.period-amount');
 const checkDeposit = document.querySelector('#deposit-check');
 const budgetMonthValue = document.querySelector('.budget_month-value');
-const depositCheckmark = document.querySelector('.deposit-checkmark');
+const depositBank = document.querySelector('.deposit-bank');
+const depositAmount = document.querySelector('.deposit-amount');
+const depositPercent = document.querySelector('.deposit-percent');
 
 const additionalIncomeItems = document.querySelectorAll('.additional_income-item');
 
@@ -111,6 +113,7 @@ class AppData {
     
         this.getDepositChecked();
         this.getExpensesMonth();
+        this.getInfoDeposit();
         this.getBudget();
         this.getTargetMonth();
     
@@ -155,6 +158,9 @@ class AppData {
         this.changeDisabledElements();
         this.changeButtonStart();
         this.changeDisabled( buttonStart );
+
+        depositCheck.checked = false;
+        this.depositHandler();
 
     }
 
@@ -297,7 +303,8 @@ class AppData {
 
     getBudget() {
 
-        const budgetMonth = this.budget + this.additionalIncome - this.expensesMonth;
+        const monthDeposit = Math.floor(this.moneyDeposit * (this.percentDeposit / 100 / 12 ));
+        const budgetMonth = this.budget + this.additionalIncome - this.expensesMonth + monthDeposit;
         const budgetDay = Math.floor(budgetMonth / 30);
     
         this.budgetMonth = budgetMonth;
@@ -455,6 +462,83 @@ class AppData {
 
     }
 
+    getInfoDeposit() {
+
+        if ( this.deposit ) {
+
+            this.percentDeposit = depositPercent.value;
+            this.moneyDeposit = depositAmount.value;
+
+        }
+
+    }
+
+    checkOtherDepositPercent() {
+
+        if ( depositPercent.value > 100 ) {
+
+            alert( `Введите корректное значение в поле "Процент". Максимальная ставка - 100%` );
+            depositPercent.value = 100;
+
+        } else {
+
+            return;
+
+        }       
+        
+    }
+
+    changePercent() {
+
+        let selectValue = this.value;
+        
+        if ( selectValue === 'other' ) {
+
+            depositPercent.value = '';
+            depositPercent.style.display = 'inline-block';
+
+        } else {
+
+            depositPercent.value = selectValue;
+            depositPercent.style.display = 'none';
+
+        }
+        
+    }
+
+    depositHandler() {
+
+        this.addEventNum( depositPercent );
+
+        if ( depositCheck.checked ) {
+
+            depositBank.style.display = 'inline-block';
+            depositAmount.style.display = 'inline-block';
+
+            this.deposit = true;
+
+            depositBank.addEventListener( 'change', this.changePercent );
+            
+            depositPercent.addEventListener( 'change', this.checkOtherDepositPercent );
+        
+        } else { 
+
+            depositBank.style.display = 'none';
+            depositAmount.style.display = 'none';
+            depositPercent.style.display = 'none';
+            depositPercent.value = '';
+            depositBank.value = '';
+            depositAmount.value = '';
+
+            this.deposit = false;
+
+            depositBank.removeEventListener( 'change', this.changePercent );
+
+            depositPercent.removeEventListener( 'change', this.checkOtherDepositPercent.bind( this ) );
+
+        }
+    }
+
     eventListeners() {
 
         buttonsAdd.forEach( ( item, i ) => {
@@ -477,7 +561,7 @@ class AppData {
         
         salaryAmount.addEventListener('input',  () => {
 
-            if ( salaryAmount.value && buttonStart.disabled === true ) {
+            if ( salaryAmount.value && buttonStart.disabled === true  ) {
                 this.changeDisabled( buttonStart );
             } else if ( !salaryAmount.value ) {
                 this.changeDisabled( buttonStart );
@@ -500,6 +584,7 @@ class AppData {
         this.changeDisabled( buttonStart );
         buttonStart.addEventListener('click', this.start.bind( this ));
         buttonCancel.addEventListener('click', this.reset.bind ( this ));
+        depositCheck.addEventListener( 'change', this.depositHandler.bind( this ));
     
     }
 
